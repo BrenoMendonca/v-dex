@@ -1,6 +1,8 @@
 import styles from "./ProfileView.module.css";
 import TypeBadge from "./TypeBadge";
-import { UserIcon, PokeballIcon } from "./icons";
+import LogoutButton from "./LogoutButton";
+import AvatarUpload from "./AvatarUpload";
+import { PokeballIcon } from "./icons";
 import { defaultSpriteUrl } from "@/lib/sprites";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
@@ -10,7 +12,7 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   minute: "2-digit",
 });
 
-export default function ProfileView({ stats }) {
+export default function ProfileView({ stats, user }) {
   const percent = Math.round((stats.capturedCount / stats.dexCount) * 100);
   const maxTypeCount = stats.topTypes[0]?.count ?? 1;
 
@@ -20,13 +22,12 @@ export default function ProfileView({ stats }) {
 
       <div className={styles.content}>
       <div className={styles.header}>
-        <div className={styles.avatar}>
-          <UserIcon />
-        </div>
-        <div>
-          <p className={styles.title}>Treinador(a)</p>
+        <AvatarUpload avatar={user?.avatar} />
+        <div className={styles.headerText}>
+          <p className={styles.title}>{user?.login ?? "Treinador(a)"}</p>
           <p className={styles.subtitle}>Perfil da sua Pokédex</p>
         </div>
+        <LogoutButton />
       </div>
 
       <div className={styles.card}>

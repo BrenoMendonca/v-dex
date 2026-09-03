@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import ScanHistory from "@/models/ScanHistory";
 import { identifyPokemonFromImage, CONFIDENCE_THRESHOLD } from "@/lib/gemini";
@@ -33,6 +33,16 @@ async function isRateLimited(ip) {
   return count >= RATE_LIMIT_MAX_PER_IP;
 }
 
+// O cliente não precisa esperar o registro de histórico terminar pra receber a resposta —
+// grava em background depois que a resposta já foi enviada.
+function logScanHistory(entry) {
+  after(() =>
+    ScanHistory.create(entry).catch((error) => {
+      console.error("Falha ao registrar ScanHistory em background:", error.message);
+    })
+  );
+}
+
 export async function POST(request) {
   await dbConnect();
 
@@ -60,19 +70,21 @@ export async function POST(request) {
     return NextResponse.json({ status: "error", error: "image_too_large" }, { status: 400 });
   }
 
-  if (await isRateLimited(ip)) {
-    return NextResponse.json(
-      { status: "rate_limited", retryAfterMs: RATE_LIMIT_WINDOW_MS },
-      { status: 429 }
-    );
-  }
-
   const imageHash = createHash("sha256").update(parsed.data).digest("hex");
 
   try {
-    const cachedScan = await ScanHistory.findOne({ imageHash, status: "identified" }).sort({
-      createdAt: -1,
-    });
+    // Nem uma depende do resultado da outra — rodar juntas em vez de em sequência.
+    const [rateLimited, cachedScan] = await Promise.all([
+      isRateLimited(ip),
+      ScanHistory.findOne({ imageHash, status: "identified" }).sort({ createdAt: -1 }),
+    ]);
+
+    if (rateLimited) {
+      return NextResponse.json(
+        { status: "rate_limited", retryAfterMs: RATE_LIMIT_WINDOW_MS },
+        { status: 429 }
+      );
+    }
 
     let identification;
     if (cachedScan) {
@@ -86,7 +98,7 @@ export async function POST(request) {
     }
 
     if (!identification.identified || identification.confidence < CONFIDENCE_THRESHOLD) {
-      await ScanHistory.create({
+      logScanHistory({
         ip,
         imageHash,
         status: "not_identified",
@@ -99,7 +111,7 @@ export async function POST(request) {
     const pokemon = await getPokemonByNameOrId(normalizedName);
 
     if (!pokemon) {
-      await ScanHistory.create({
+      logScanHistory({
         ip,
         imageHash,
         status: "not_identified",
@@ -109,7 +121,7 @@ export async function POST(request) {
       return NextResponse.json({ status: "not_identified" });
     }
 
-    await ScanHistory.create({
+    logScanHistory({
       ip,
       imageHash,
       status: "identified",

@@ -20,6 +20,9 @@ para uma carta física de Pokémon e receber as informações do Pokémon identi
   escolhida pelo usuário via `FISH_AUDIO_VOICE_ID`), chamada só pelo backend (`app/api/speak`). Fallback pro
   Gemini TTS (`lib/gemini.js`) se o Fish Audio falhar — o tier gratuito do Fish Audio é promocional e pode
   expirar a qualquer momento sem aviso.
+- **Autenticação**: [Auth.js v5](https://authjs.dev) (`next-auth@beta`) com provider Credentials (login/senha
+  próprios, sem OAuth), sessão via JWT em cookie (sem adapter de banco pra sessão). Senha nunca em texto puro —
+  hash com `bcryptjs` (`models/User.js` guarda só `passwordHash`). Configuração central em `auth.js` na raiz.
 
 ## Arquitetura do fluxo de scan
 
@@ -48,6 +51,8 @@ lib/
 models/
   Pokemon.js                   # schema de cache
   ScanHistory.js                # schema de histórico do usuário
+  User.js                       # schema de usuário (login, email, passwordHash, createdAt)
+auth.js                         # config do Auth.js (raiz do projeto)
 ```
 
 ## Variáveis de ambiente
@@ -57,6 +62,7 @@ MONGODB_URI=
 GEMINI_API_KEY=
 FISH_AUDIO_API_KEY=
 FISH_AUDIO_VOICE_ID=
+AUTH_SECRET=
 ```
 
 Nunca commitar `.env.local`. Sempre usar `process.env` só em código de servidor (API routes, `lib/`).
@@ -81,6 +87,7 @@ npm run lint      # lint do projeto
 ## O que evitar
 
 - Não usar `react-router-dom` junto com o roteamento do Next.js.
-- Não expor `GEMINI_API_KEY`, `FISH_AUDIO_API_KEY` nem `MONGODB_URI` no bundle do client.
+- Não expor `GEMINI_API_KEY`, `FISH_AUDIO_API_KEY`, `MONGODB_URI` nem `AUTH_SECRET` no bundle do client.
+- Nunca salvar senha em texto puro — sempre hash com `bcryptjs` antes de gravar em `User.passwordHash`.
 - Não fazer chamadas diretas à PokeAPI a partir do componente React sem passar pelo backend/cache.
 - Não usar `localStorage`/`sessionStorage` em componentes que rodem em ambientes que não suportam (ex. previews/artifacts) — usar estado em memória ou o MongoDB via API.

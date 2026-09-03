@@ -1,5 +1,6 @@
 import { Oxanium } from "next/font/google";
 import PokedexShell from "@/components/PokedexShell";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 const oxanium = Oxanium({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body>
-        <PokedexShell>{children}</PokedexShell>
+        <AuthProvider>
+          <PokedexShell>{children}</PokedexShell>
+        </AuthProvider>
       </body>
     </html>
   );
