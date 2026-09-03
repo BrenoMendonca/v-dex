@@ -38,7 +38,7 @@ function WeaknessBadges({ label, types }) {
   );
 }
 
-export default function PokemonDetail({ pokemon, confidence, capturedBadge, autoSpeak }) {
+export default function PokemonDetail({ pokemon, confidence, capturedBadge, autoSpeak, onNavigate }) {
   const [bouncing, setBouncing] = useState(false);
   const [speechState, setSpeechState] = useState("idle");
   const audioRef = useRef(null);
@@ -189,24 +189,30 @@ export default function PokemonDetail({ pokemon, confidence, capturedBadge, auto
         <div className={styles.section}>
           <p className={styles.sectionTitle}>Cadeia de evolução</p>
           <div className={styles.evolutionRow}>
-            {pokemon.evolutionChain.map((stage, index) => (
-              <div key={stage.id} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {index > 0 && <span className={styles.evolutionArrow}>→</span>}
-                <div
-                  className={`${styles.evolutionStage} ${
-                    stage.id === pokemon.id ? styles.evolutionStageCurrent : ""
-                  }`}
-                >
-                  <FallbackImage
-                    sources={[defaultSpriteUrl(stage.id), officialArtworkUrl(stage.id)]}
-                    alt={stage.name}
-                    className={styles.evolutionSprite}
-                  />
-                  <span className={styles.evolutionName}>{stage.name}</span>
-                  {stage.trigger && <span className={styles.evolutionTrigger}>{stage.trigger}</span>}
+            {pokemon.evolutionChain.map((stage, index) => {
+              const isCurrent = stage.id === pokemon.id;
+              const canNavigate = Boolean(onNavigate) && !isCurrent;
+              const StageTag = canNavigate ? "button" : "div";
+
+              return (
+                <div key={stage.id} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  {index > 0 && <span className={styles.evolutionArrow}>→</span>}
+                  <StageTag
+                    type={canNavigate ? "button" : undefined}
+                    className={`${styles.evolutionStage} ${isCurrent ? styles.evolutionStageCurrent : ""}`}
+                    onClick={canNavigate ? () => onNavigate(stage.id) : undefined}
+                  >
+                    <FallbackImage
+                      sources={[defaultSpriteUrl(stage.id), officialArtworkUrl(stage.id)]}
+                      alt={stage.name}
+                      className={styles.evolutionSprite}
+                    />
+                    <span className={styles.evolutionName}>{stage.name}</span>
+                    {stage.trigger && <span className={styles.evolutionTrigger}>{stage.trigger}</span>}
+                  </StageTag>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

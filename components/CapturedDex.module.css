@@ -1,6 +1,110 @@
+.searchWrap {
+  position: relative;
+}
+
 .searchForm {
   display: flex;
   gap: 8px;
+}
+
+.suggestions {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 280px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px var(--shadow-soft);
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  text-align: left;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.suggestionItem:active {
+  background: var(--surface-bg-alt);
+}
+
+.suggestionSprite {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.suggestionName {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionNumber {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.detailNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backButton {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.backButton:active {
+  background: var(--surface-bg-alt);
+}
+
+.pager {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.pagerButton {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.pagerButton:active:not(:disabled) {
+  background: var(--surface-bg-alt);
+}
+
+.pagerButton:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 .searchInput {
