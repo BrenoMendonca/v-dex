@@ -1,0 +1,136 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.scoreRow {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.silhouetteBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 180px;
+  border-radius: 12px;
+  background: var(--surface-bg-alt);
+  border: 1px solid var(--border-color);
+}
+
+.silhouette {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: brightness(0);
+  transition: filter 0.4s ease;
+}
+
+.silhouetteRevealed {
+  filter: none;
+}
+
+.blanks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.blankLetter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 20px;
+  height: 26px;
+  border-bottom: 3px solid var(--text-muted);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+.blankGap {
+  width: 12px;
+}
+
+.feedbackCorrect {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #2fa84f;
+  text-transform: capitalize;
+}
+
+.feedbackWrong {
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--danger-text);
+  text-transform: capitalize;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+}
+
+.input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg-alt);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--accent-blue);
+}
+
+.submitButton {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent-blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.submitButton:active {
+  background: var(--accent-blue-dark);
+}
+
+.giveUpButton {
+  align-self: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.nextButton {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent-blue);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.nextButton:active {
+  background: var(--accent-blue-dark);
+}

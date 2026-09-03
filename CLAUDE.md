@@ -1,1 +1,86 @@
-@AGENTS.md
+# CLAUDE.md
+
+Este arquivo dá contexto ao Claude Code sobre o projeto. Mantenha atualizado conforme o projeto evoluir.
+
+## Visão geral do projeto
+
+Pokedex web, **mobile-first**, que consome a PokeAPI e permite ao usuário apontar a câmera do celular
+para uma carta física de Pokémon e receber as informações do Pokémon identificado.
+
+## Stack
+
+- **Frontend + Backend**: Next.js (App Router), tudo em um projeto único.
+  - Não usar `react-router-dom` — o roteamento é feito pelo próprio Next.js (pasta `app/`).
+- **Banco de dados**: MongoDB, via Mongoose.
+- **Dados de Pokémon**: [PokeAPI](https://pokeapi.co/) (pública, sem autenticação, respeitar rate limit).
+- **Reconhecimento de carta**: Google Gemini API (`@google/genai`, modelo com visão, ex. `gemini-flash-lite-latest`)
+  chamada **somente pelo backend** — a API key nunca deve ser exposta no client. Escolhido por ter tier
+  gratuito sem exigir cartão de crédito/saldo pré-pago (diferente da OpenAI).
+- **Voz da Pokédex (texto-pra-voz)**: [Fish Audio](https://fish.audio) (modelo `s2.1-pro-free`, voz customizada
+  escolhida pelo usuário via `FISH_AUDIO_VOICE_ID`), chamada só pelo backend (`app/api/speak`). Fallback pro
+  Gemini TTS (`lib/gemini.js`) se o Fish Audio falhar — o tier gratuito do Fish Audio é promocional e pode
+  expirar a qualquer momento sem aviso.
+
+## Arquitetura do fluxo de scan
+
+1. Client captura foto da carta (`<input type="file" accept="image/*" capture="environment">` ou `react-webcam`).
+2. Client envia a imagem (base64) para `POST /api/scan-card`.
+3. Backend chama o Gemini pedindo o nome do Pokémon identificado na imagem (JSON schema estruturado).
+4. Backend verifica cache no MongoDB (hash da imagem ou nome já consultado); se não existir, busca na PokeAPI.
+5. Backend salva no MongoDB: cache do Pokémon, histórico de scan do usuário.
+6. Resposta formatada volta pro client, que renderiza a tela de resultado.
+
+## Estrutura de pastas (sugerida)
+
+```
+app/
+  api/
+    scan-card/route.js       # recebe imagem, chama o Gemini, retorna nome do Pokémon
+    pokemon/[name]/route.js  # busca na PokeAPI com cache no Mongo
+  pokedex/page.js             # lista/grid de Pokémon
+  scan/page.js                 # tela de captura de câmera
+  pokemon/[name]/page.js      # tela de detalhe do Pokémon
+lib/
+  mongodb.js                   # conexão com o Mongo (singleton)
+  pokeapi.js                   # funções de consulta à PokeAPI
+  gemini.js                    # client do Gemini configurado (visão + TTS fallback)
+  fish.js                      # client do Fish Audio (voz da Pokédex, TTS principal)
+models/
+  Pokemon.js                   # schema de cache
+  ScanHistory.js                # schema de histórico do usuário
+```
+
+## Variáveis de ambiente
+
+```
+MONGODB_URI=
+GEMINI_API_KEY=
+FISH_AUDIO_API_KEY=
+FISH_AUDIO_VOICE_ID=
+```
+
+Nunca commitar `.env.local`. Sempre usar `process.env` só em código de servidor (API routes, `lib/`).
+
+## Convenções
+
+- Componentes de UI: mobile-first por padrão; testar sempre em viewport estreita antes de expandir pra desktop.
+- Toda chamada ao Gemini e à PokeAPI acontece no backend (API routes), nunca direto do client.
+- Nomes de Pokémon retornados do Gemini devem ser normalizados (lowercase, sem acentos) antes de consultar a PokeAPI, que espera o nome em inglês minúsculo.
+- Cachear no MongoDB toda resposta da PokeAPI já consultada, evitando bater na API externa repetidamente.
+- Limitar (rate limit) o endpoint `/api/scan-card` por usuário/IP — mesmo no tier gratuito do Gemini, há limite de requisições por dia.
+- Se o Gemini retornar baixa confiança ou não identificar o Pokémon, o backend deve responder com um estado claro de "não identificado", nunca inventar um resultado.
+
+## Comandos úteis
+
+```
+npm run dev       # ambiente de desenvolvimento
+npm run build     # build de produção
+npm run lint      # lint do projeto
+```
+
+## O que evitar
+
+- Não usar `react-router-dom` junto com o roteamento do Next.js.
+- Não expor `GEMINI_API_KEY`, `FISH_AUDIO_API_KEY` nem `MONGODB_URI` no bundle do client.
+- Não fazer chamadas diretas à PokeAPI a partir do componente React sem passar pelo backend/cache.
+- Não usar `localStorage`/`sessionStorage` em componentes que rodem em ambientes que não suportam (ex. previews/artifacts) — usar estado em memória ou o MongoDB via API.
