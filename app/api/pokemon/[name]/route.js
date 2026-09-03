@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getPokemonByNameOrId } from "@/lib/pokeapi";
 
+// getPokemonByNameOrId pode disparar um backfill de tradução via after() (chamada ao Gemini).
+// Sem isso, a Vercel corta a função no limite padrão (curto) antes do after() terminar.
+export const maxDuration = 30;
+
 export async function GET(request, { params }) {
   const { name } = await params;
 

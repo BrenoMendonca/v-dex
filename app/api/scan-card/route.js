@@ -6,6 +6,11 @@ import { identifyPokemonFromImage, CONFIDENCE_THRESHOLD } from "@/lib/gemini";
 import { getPokemonByNameOrId } from "@/lib/pokeapi";
 import { normalizePokemonName } from "@/lib/normalize";
 
+// Identificação + fallback pra modelo mais forte + enriquecimento podem somar bastante tempo
+// no pior caso, e o registro de histórico ainda roda depois via after() — sem isso, a Vercel
+// corta a função no limite padrão (curto) antes de tudo terminar.
+export const maxDuration = 60;
+
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
 const RATE_LIMIT_MAX_PER_IP = 15;
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
