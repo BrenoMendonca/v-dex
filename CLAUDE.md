@@ -63,9 +63,15 @@ GEMINI_API_KEY=
 FISH_AUDIO_API_KEY=
 FISH_AUDIO_VOICE_ID=
 AUTH_SECRET=
+ADMIN_SEED_SECRET=  # opcional — só necessária pra usar POST /api/admin/seed-dex
 ```
 
 Nunca commitar `.env.local`. Sempre usar `process.env` só em código de servidor (API routes, `lib/`).
+
+**Vercel**: depois de adicionar/editar uma env var no painel, é preciso **forçar um novo deploy** (não
+basta salvar) — funções serverless já "mornas" continuam com o `process.env` antigo em memória
+indefinidamente, causando comportamento inconsistente (algumas requisições com a chave, outras sem, de
+forma aparentemente aleatória) até que um novo deploy substitua todas as instâncias de uma vez.
 
 ## Convenções
 
