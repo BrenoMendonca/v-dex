@@ -66,19 +66,29 @@ export default function Onboarding({ name, onComplete }) {
   useEffect(() => stopSpeaking, []);
 
   useEffect(() => {
-    if (spokenStepRef.current === step.id) return;
-    spokenStepRef.current = step.id;
+    // Adiado com setTimeout (igual o autoSpeak de PokemonDetail.js) — no StrictMode do dev,
+    // React monta/desmonta/remonta o efeito de propósito; sem o adiamento, a chamada a
+    // speakText() da 1ª tentativa já teria disparado o fetch de /api/speak quando a
+    // "desmontagem" fantasma roda, e o stopSpeaking() dela invalidava essa voz sem nunca
+    // tocar. Guardar e marcar o step só dentro do timeout garante que só a tentativa que
+    // sobrevive (a 2ª) realmente fala.
+    const timer = setTimeout(() => {
+      if (spokenStepRef.current === step.id) return;
+      spokenStepRef.current = step.id;
 
-    let text = step.text;
-    if (step.id === "welcome") {
-      text = `Bem-vindo à sua jornada Pokémon, ${name}! Eu sou a Pokédex que o Professor Carvalho te deu pra te ajudar a conhecer novos Pokémon. Agora eu vou te mostrar rapidinho como eu funciono.`;
-    }
-    if (step.id === "favorite") text = "Pra fechar, me conta: qual é o seu Pokémon favorito?";
-    if (step.id === "done") text = `Prontinho, ${name}! Agora é só explorar. Divirta-se!`;
+      let text = step.text;
+      if (step.id === "welcome") {
+        text = `Bem-vindo à sua jornada Pokémon, ${name}! Eu sou a Pokédex que o Professor Carvalho te deu pra te ajudar a conhecer novos Pokémon. Agora eu vou te mostrar rapidinho como eu funciono.`;
+      }
+      if (step.id === "favorite") text = "Pra fechar, me conta: qual é o seu Pokémon favorito?";
+      if (step.id === "done") text = `Prontinho, ${name}! Agora é só explorar. Divirta-se!`;
 
-    if (text) {
-      speakText(text).catch((error) => console.error(error));
-    }
+      if (text) {
+        speakText(text).catch((error) => console.error(error));
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- narra uma vez por passo, não a cada render
   }, [step.id]);
 
