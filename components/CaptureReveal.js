@@ -59,7 +59,7 @@ export default function CaptureReveal({ pokemon, onDone }) {
             <FallbackImage sources={spriteSources} alt={pokemon.name} className={styles.sprite} />
           </div>
           <p className={styles.caughtText}>Pokémon identificado!</p>
-          <p className={styles.name}>{pokemon.name}</p>
+          <p className={styles.name}>{pokemon.name.replace(/-/g, " ")}</p>
         </>
       )}
     </div>

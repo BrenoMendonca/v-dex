@@ -110,7 +110,7 @@ export default function PokemonDetail({ pokemon, confidence, capturedBadge, auto
         </button>
         <div>
           <p className={styles.number}>#{pokemon.id}</p>
-          <h2 className={styles.name}>{pokemon.name}</h2>
+          <h2 className={styles.name}>{pokemon.name.replace(/-/g, " ")}</h2>
           {(pokemon.genusPt || pokemon.genus) && (
             <p className={styles.genus}>{pokemon.genusPt || pokemon.genus}</p>
           )}
@@ -182,6 +182,35 @@ export default function PokemonDetail({ pokemon, confidence, capturedBadge, auto
           <WeaknessBadges label="Resiste (1/2x)" types={weaknesses.halfResist} />
           <WeaknessBadges label="Resiste (1/4x)" types={weaknesses.quarterResist} />
           <WeaknessBadges label="Imune" types={weaknesses.immune} />
+        </div>
+      )}
+
+      {pokemon.varieties?.length > 1 && (
+        <div className={styles.section}>
+          <p className={styles.sectionTitle}>Outras formas</p>
+          <div className={styles.evolutionRow}>
+            {pokemon.varieties.map((variety) => {
+              const isCurrent = variety.id === pokemon.id;
+              const canNavigate = Boolean(onNavigate) && !isCurrent;
+              const VarietyTag = canNavigate ? "button" : "div";
+
+              return (
+                <VarietyTag
+                  key={variety.id}
+                  type={canNavigate ? "button" : undefined}
+                  className={`${styles.evolutionStage} ${isCurrent ? styles.evolutionStageCurrent : ""}`}
+                  onClick={canNavigate ? () => onNavigate(variety.id) : undefined}
+                >
+                  <FallbackImage
+                    sources={[defaultSpriteUrl(variety.id), officialArtworkUrl(variety.id)]}
+                    alt={variety.label}
+                    className={styles.evolutionSprite}
+                  />
+                  <span className={styles.evolutionName}>{variety.label}</span>
+                </VarietyTag>
+              );
+            })}
+          </div>
         </div>
       )}
 

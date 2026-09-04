@@ -75,7 +75,7 @@ export default function ProfileView({ stats, user, trainerCard }) {
                 <img src={defaultSpriteUrl(capture.id)} alt="" className={styles.recentSprite} />
               )}
               <div>
-                <p className={styles.recentName}>{capture.name}</p>
+                <p className={styles.recentName}>{capture.name.replace(/-/g, " ")}</p>
                 <p className={styles.recentDate}>{dateFormatter.format(new Date(capture.capturedAt))}</p>
               </div>
             </div>

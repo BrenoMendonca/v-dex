@@ -38,6 +38,17 @@ const PokemonSchema = new mongoose.Schema({
       trigger: String,
     },
   ],
+  varieties: [
+    {
+      id: Number,
+      name: String,
+      label: String,
+    },
+  ],
+  // Mongoose sempre devolve [] pra um campo array não setado (mesmo em documentos antigos sem
+  // a chave no Mongo), então "varieties.length === 0" não distingue "nunca calculado" de
+  // "calculado e sem variantes de verdade" — esse marcador resolve isso, como o enrichedAt.
+  varietiesComputedAt: { type: Date, default: null },
   enrichedAt: Date,
   raw: mongoose.Schema.Types.Mixed,
   fetchedAt: { type: Date, default: Date.now },
