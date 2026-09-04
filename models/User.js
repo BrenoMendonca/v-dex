@@ -5,6 +5,10 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, trim: true, lowercase: true },
   passwordHash: { type: String, required: true },
   avatar: { type: String, default: null },
+  name: { type: String, default: null, trim: true },
+  favoritePokemonId: { type: Number, default: null },
+  gender: { type: String, enum: ["male", "female"], default: "male" },
+  onboardingCompletedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 

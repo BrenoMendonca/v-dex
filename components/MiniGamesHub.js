@@ -9,7 +9,7 @@ const GAMES = [
   {
     id: "quem-e-esse",
     title: "Quem é esse Pokémon?",
-    description: "Adivinhe pela silhueta antes de acabar as dicas.",
+    description: "Monte o nome do Pokémon clicando nas letras certas.",
   },
 ];
 

@@ -2,6 +2,8 @@ import styles from "./ProfileView.module.css";
 import TypeBadge from "./TypeBadge";
 import LogoutButton from "./LogoutButton";
 import AvatarUpload from "./AvatarUpload";
+import FavoritePokemonCard from "./FavoritePokemonCard";
+import TrainerCard from "./TrainerCard";
 import { PokeballIcon } from "./icons";
 import { defaultSpriteUrl } from "@/lib/sprites";
 
@@ -12,8 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   minute: "2-digit",
 });
 
-export default function ProfileView({ stats, user }) {
-  const percent = Math.round((stats.capturedCount / stats.dexCount) * 100);
+export default function ProfileView({ stats, user, trainerCard }) {
   const maxTypeCount = stats.topTypes[0]?.count ?? 1;
 
   return (
@@ -24,38 +25,25 @@ export default function ProfileView({ stats, user }) {
       <div className={styles.header}>
         <AvatarUpload avatar={user?.avatar} />
         <div className={styles.headerText}>
-          <p className={styles.title}>{user?.login ?? "Treinador(a)"}</p>
-          <p className={styles.subtitle}>Perfil da sua Pokédex</p>
+          <p className={styles.title}>{user?.name || user?.login || "Treinador(a)"}</p>
+          <p className={styles.subtitle}>
+            {user?.name ? `@${user.login}` : "Perfil da sua Pokédex"}
+          </p>
         </div>
         <LogoutButton />
       </div>
 
-      <div className={styles.card}>
-        <div className={styles.progressHeader}>
-          <span>Progresso da Pokédex</span>
-          <span className={styles.progressValue}>
-            {stats.capturedCount} / {stats.dexCount} ({percent}%)
-          </span>
-        </div>
-        <div className={styles.progressTrack}>
-          <div className={styles.progressFill} style={{ width: `${percent}%` }} />
-        </div>
-      </div>
+      <TrainerCard
+        trainerId={trainerCard.trainerId}
+        name={user?.name || user?.login || "Treinador(a)"}
+        gender={user?.gender}
+        percent={trainerCard.percent}
+        score={trainerCard.score}
+        daysSinceStart={trainerCard.daysSinceStart}
+        startDate={trainerCard.startDate}
+      />
 
-      <div className={styles.statsGrid}>
-        <div className={styles.statTile}>
-          <p className={styles.statValue}>{stats.totalScans}</p>
-          <p className={styles.statLabel}>Scans</p>
-        </div>
-        <div className={styles.statTile}>
-          <p className={styles.statValue}>{stats.identifiedScans}</p>
-          <p className={styles.statLabel}>Identificados</p>
-        </div>
-        <div className={styles.statTile}>
-          <p className={styles.statValue}>{stats.notIdentifiedScans}</p>
-          <p className={styles.statLabel}>Não identificados</p>
-        </div>
-      </div>
+      <FavoritePokemonCard favoritePokemon={user?.favoritePokemon ?? null} />
 
       <div className={styles.card}>
         <p className={styles.sectionTitle}>Tipos mais capturados</p>

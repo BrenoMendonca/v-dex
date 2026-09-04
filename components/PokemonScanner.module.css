@@ -64,6 +64,27 @@
   }
 }
 
+.resultHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resultThumb {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.resultHeaderLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
 .captureButton {
   display: block;
   padding: 14px;
@@ -84,6 +105,11 @@
 .captureButtonDisabled {
   opacity: 0.6;
   pointer-events: none;
+}
+
+.captureButtonCompact {
+  padding: 10px;
+  font-size: 0.8rem;
 }
 
 .hiddenInput {

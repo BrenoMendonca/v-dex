@@ -6,6 +6,7 @@ import User from "@/models/User";
 const LOGIN_REGEX = /^[a-z0-9_.-]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN_LENGTH = 8;
+const NAME_MAX_LENGTH = 40;
 
 export async function POST(request) {
   await dbConnect();
@@ -20,6 +21,7 @@ export async function POST(request) {
   const login = String(body?.login ?? "").trim().toLowerCase();
   const email = String(body?.email ?? "").trim().toLowerCase();
   const password = String(body?.password ?? "");
+  const name = String(body?.name ?? "").trim().slice(0, NAME_MAX_LENGTH);
 
   if (!LOGIN_REGEX.test(login)) {
     return NextResponse.json({ error: "invalid_login" }, { status: 400 });
@@ -30,6 +32,9 @@ export async function POST(request) {
   if (password.length < PASSWORD_MIN_LENGTH) {
     return NextResponse.json({ error: "weak_password" }, { status: 400 });
   }
+  if (!name) {
+    return NextResponse.json({ error: "invalid_name" }, { status: 400 });
+  }
 
   const existing = await User.findOne({ $or: [{ login }, { email }] });
   if (existing) {
@@ -37,7 +42,7 @@ export async function POST(request) {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  await User.create({ login, email, passwordHash });
+  await User.create({ login, email, passwordHash, name });
 
   return NextResponse.json({ ok: true });
 }

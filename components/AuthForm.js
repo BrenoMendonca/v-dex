@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import styles from "./AuthForm.module.css";
 import { playPlink } from "@/lib/sfx";
+import { emitJustRegistered } from "./PokedexShell";
 
 const REGISTER_ERRORS = {
   invalid_login: "Login inválido (3–20 letras, números, ponto, traço ou underline).",
   invalid_email: "E-mail inválido.",
   weak_password: "A senha precisa ter pelo menos 8 caracteres.",
+  invalid_name: "Informe seu nome.",
   already_exists: "Já existe uma conta com esse login ou e-mail.",
 };
 
@@ -18,6 +20,7 @@ export default function AuthForm() {
   const [mode, setMode] = useState("login");
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,7 +41,7 @@ export default function AuthForm() {
         const response = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ login, email, password }),
+          body: JSON.stringify({ login, email, password, name }),
         });
         const data = await response.json();
 
@@ -52,6 +55,9 @@ export default function AuthForm() {
       if (result?.error) {
         setError("Login ou senha incorretos.");
       } else {
+        if (mode === "register") {
+          emitJustRegistered(name.trim());
+        }
         router.refresh();
       }
     } catch (err) {
@@ -93,15 +99,27 @@ export default function AuthForm() {
         />
 
         {mode === "register" && (
-          <input
-            type="email"
-            className={styles.input}
-            placeholder="E-mail"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            required
-          />
+          <>
+            <input
+              type="email"
+              className={styles.input}
+              placeholder="E-mail"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              autoComplete="email"
+              required
+            />
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Seu nome"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              autoComplete="name"
+              maxLength={40}
+              required
+            />
+          </>
         )}
 
         <input

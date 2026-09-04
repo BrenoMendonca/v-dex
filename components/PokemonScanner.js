@@ -94,33 +94,45 @@ export default function PokemonScanner() {
 
   return (
     <>
-      <div className={styles.preview}>
-        {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element -- preview local do arquivo capturado, não vem de URL remota otimizável
-          <img src={previewUrl} alt="Foto capturada" className={styles.previewImage} />
-        ) : (
-          <div className={styles.placeholder}>
-            <span className={styles.placeholderIcon} />
-            Aponte a câmera para uma carta de Pokémon
-          </div>
-        )}
+      {!result ? (
+        <div className={styles.preview}>
+          {previewUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- preview local do arquivo capturado, não vem de URL remota otimizável
+            <img src={previewUrl} alt="Foto capturada" className={styles.previewImage} />
+          ) : (
+            <div className={styles.placeholder}>
+              <span className={styles.placeholderIcon} />
+              Aponte a câmera para uma carta de Pokémon
+            </div>
+          )}
 
-        {loading && (
-          <div className={styles.overlay}>
-            <span className={styles.spinner} />
-            Identificando carta...
-          </div>
-        )}
+          {loading && (
+            <div className={styles.overlay}>
+              <span className={styles.spinner} />
+              Identificando carta...
+            </div>
+          )}
 
-        {!loading && statusMessage && <div className={styles.overlay}>{statusMessage}</div>}
+          {!loading && statusMessage && <div className={styles.overlay}>{statusMessage}</div>}
 
-        {pendingResult && (
-          <CaptureReveal pokemon={pendingResult.pokemon} onDone={handleRevealDone} />
-        )}
-      </div>
+          {pendingResult && (
+            <CaptureReveal pokemon={pendingResult.pokemon} onDone={handleRevealDone} />
+          )}
+        </div>
+      ) : (
+        <div className={styles.resultHeader}>
+          {previewUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- miniatura local do arquivo capturado
+            <img src={previewUrl} alt="Foto capturada" className={styles.resultThumb} />
+          )}
+          <p className={styles.resultHeaderLabel}>Identificado!</p>
+        </div>
+      )}
 
       <label
-        className={`${styles.captureButton} ${loading ? styles.captureButtonDisabled : ""}`}
+        className={`${styles.captureButton} ${result ? styles.captureButtonCompact : ""} ${
+          loading ? styles.captureButtonDisabled : ""
+        }`}
       >
         {loading ? "Identificando..." : previewUrl ? "Escanear outra carta" : "Escanear carta"}
         <input

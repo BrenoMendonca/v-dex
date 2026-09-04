@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import { NextResponse, after } from "next/server";
+import { auth } from "@/auth";
 import { dbConnect } from "@/lib/mongodb";
 import ScanHistory from "@/models/ScanHistory";
 import { identifyPokemonFromImage, CONFIDENCE_THRESHOLD } from "@/lib/gemini";
@@ -49,6 +50,12 @@ function logScanHistory(entry) {
 }
 
 export async function POST(request) {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ status: "error", error: "unauthorized" }, { status: 401 });
+  }
+  const userId = session.user.id;
+
   await dbConnect();
 
   const ip = getClientIp(request);
@@ -104,6 +111,7 @@ export async function POST(request) {
 
     if (!identification.identified || identification.confidence < CONFIDENCE_THRESHOLD) {
       logScanHistory({
+        userId,
         ip,
         imageHash,
         status: "not_identified",
@@ -117,6 +125,7 @@ export async function POST(request) {
 
     if (!pokemon) {
       logScanHistory({
+        userId,
         ip,
         imageHash,
         status: "not_identified",
@@ -127,6 +136,7 @@ export async function POST(request) {
     }
 
     logScanHistory({
+      userId,
       ip,
       imageHash,
       status: "identified",
@@ -138,6 +148,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("POST /api/scan-card failed:", error);
     await ScanHistory.create({
+      userId,
       ip,
       imageHash,
       status: "error",

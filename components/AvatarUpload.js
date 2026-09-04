@@ -46,6 +46,14 @@ export default function AvatarUpload({ avatar }) {
   const [preview, setPreview] = useState(avatar);
   const [uploading, setUploading] = useState(false);
 
+  // O avatar também pode mudar por fora (ex: escolher um Pokémon favorito). Em vez de
+  // useEffect, ajusta o estado durante a renderização quando o prop muda (padrão do React).
+  const [lastAvatarProp, setLastAvatarProp] = useState(avatar);
+  if (avatar !== lastAvatarProp) {
+    setLastAvatarProp(avatar);
+    setPreview(avatar);
+  }
+
   const handleFileChange = async (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";

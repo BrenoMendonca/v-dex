@@ -84,6 +84,14 @@ export function MoonIcon(props) {
   );
 }
 
+export function StarIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
+      <path d="M12 2.5l2.9 6.3 6.9.7-5.2 4.7 1.5 6.8L12 17.6l-6.1 3.4 1.5-6.8-5.2-4.7 6.9-.7z" />
+    </svg>
+  );
+}
+
 export function GameControllerIcon(props) {
   return (
     <svg
